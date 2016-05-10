@@ -10,9 +10,12 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.partition.support.MultiResourcePartitioner;
+import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,10 +32,22 @@ public class JobLaunch {
 	MultiResourceItemReader<String> multResourceItemReaderReplace;
 
 	@Autowired
-	FlatFileItemWriter<String> mergerWriter;
+	ReplacerItemWriter<String> mergerWriter;
+	
+	@Autowired
+	MultiResourcePartitioner mergeFilePartitioner;
 
 	@Autowired
 	public DataSource dataSource;
+	
+	@Autowired
+	FlatFileItemReader<String> itemReader;
+	
+	@Autowired
+	FlatFileItemWriter<String> itemWriter;
+	
+	@Autowired
+	OutputFileListener outputFileListener;
 
 	public void executeJob(JobParameters params) throws Exception {
 		Job myjob = jobBuilderFactory.get("Replacer Job1").incrementer(new RunIdIncrementer()).listener(joblistener())
@@ -53,10 +68,16 @@ public class JobLaunch {
 	}
 
 	public Step step1() throws Exception {
-		return stepBuilderFactory.get("step1").<String, String> chunk(1).reader(multResourceItemReaderReplace)
-				// .processor(new SkipFooterLineItemProcessor())
-				.writer(mergerWriter).listener(listener1()).build();
+		return stepBuilderFactory.get("step1").partitioner(partitionStep()).partitioner("", mergeFilePartitioner)
+				.taskExecutor(new SyncTaskExecutor()).build();
 	}
+	
+	public Step partitionStep() {
+		return stepBuilderFactory.get("mergeFileStep").<String, String> chunk(1).reader(itemReader).writer(itemWriter)
+				.listener(outputFileListener).build();
+	}
+	
+	
 
 	public GetCurrentResourceChunkListener listener1() throws Exception {
 

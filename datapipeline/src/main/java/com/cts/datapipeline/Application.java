@@ -15,8 +15,8 @@ public class Application implements CommandLineRunner {
 		JobParametersBuilder params = new JobParametersBuilder();
 		params.addString("jobName", "First Job");
 		params.addString("inputDirLocation", "csv/inputs");
-		params.addString("outputDirLocation", "csv/outputs/domain.all.csv");
-		
+		params.addString("outputDirLocation", "file:csv/outputs/");
+		params.addLong("time",System.currentTimeMillis());
 		jobLaunch.executeJob(params.toJobParameters());
 	}
 	

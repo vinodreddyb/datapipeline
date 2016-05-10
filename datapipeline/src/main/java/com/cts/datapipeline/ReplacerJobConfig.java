@@ -7,6 +7,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.partition.support.MultiResourcePartitioner;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -44,6 +45,7 @@ public class ReplacerJobConfig {
 	 */
 	@Bean
 	public DataSource dataSource() throws Exception {
+		
 		final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 		dataSource.setDriver(new com.mysql.jdbc.Driver());
 		dataSource.setUrl("jdbc:mysql://localhost:3306/di");
@@ -52,6 +54,44 @@ public class ReplacerJobConfig {
 		//DatabasePopulatorUtils.execute(databasePopulator(), dataSource);
 		return dataSource;
 	}
+	
+	@Bean
+	@StepScope
+	public MultiResourcePartitioner mergeFilePartitioner(@Value("#{jobParameters[inputDirLocation]}") String input) {
+		
+		MultiResourcePartitioner partition = new MultiResourcePartitioner();
+		partition.setResources(getResources(input));
+		return partition;
+	}
+	
+	@Bean
+	@StepScope
+	public FlatFileItemReader<String> itemReader(@Value("#{stepExecution}") StepExecution stepExecution,
+			@Value("#{stepExecutionContext[fileName]}") Resource resource) {
+		FlatFileItemReader<String> reader = new FlatFileItemReader<>();
+		reader.setResource(resource);
+		reader.setLineMapper(new com.cts.datapipeline.PassThroughLineMapper(stepExecution));
+		return reader;
+	}
+	
+	@Bean
+	@StepScope
+	public FlatFileItemWriter<String> itemWriter(@Value("#{stepExecutionContext[outputFile]}") Resource resource ) {
+		FlatFileItemWriter<String> writer = new FlatFileItemWriter<String>();
+		writer.setLineAggregator(new PassThroughLineAggregator<>());
+		writer.setResource(resource);
+		return writer;
+	}
+	
+	@Bean
+	@StepScope
+	public OutputFileListener outputFileListener(@Value("#{jobParameters[outputDirLocation]}") String output) {
+		OutputFileListener listen = new OutputFileListener();
+		listen.setPath(output);
+		return listen;
+	}
+	
+	
 
 	private DatabasePopulator databasePopulator() {
 		final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -98,9 +138,10 @@ public class ReplacerJobConfig {
 
 	@Bean
 	@StepScope
-	public FlatFileItemWriter<String> mergerWriter(@Value("#{jobParameters[outputDirLocation]}") String outputDirLocation) throws Exception {
-		FlatFileItemWriter<String> writer = new FlatFileItemWriter<String>();
+	public ReplacerItemWriter<String> mergerWriter(@Value("#{jobParameters[outputDirLocation]}") String outputDirLocation,@Value("#{stepExecution}") StepExecution stepExecution) throws Exception {
+		ReplacerItemWriter<String> writer = new ReplacerItemWriter<String>();
 		writer.setLineAggregator(new PassThroughLineAggregator<>());
+		writer.setStepExecution(stepExecution);
 		writer.setResource(new FileSystemResource(outputDirLocation));
 		return writer;
 	}

@@ -45,7 +45,7 @@ public class GetCurrentResourceChunkListener implements ChunkListener{
                     String index = String.valueOf(fileNames.indexOf(fileName));
                     
                     
-                   // cc.getStepContext().getStepExecutionContext().put("current.resource" + index, fileName);
+                    cc.getStepContext().getStepExecution().getExecutionContext().put("current.resource" , mrirTarget.getCurrentResource());
                     cc.getStepContext().getStepExecution().getExecutionContext().put("line.count" , count);
                 }
             } catch (Exception ex) {
