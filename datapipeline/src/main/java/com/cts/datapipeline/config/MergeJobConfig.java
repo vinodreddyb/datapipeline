@@ -21,11 +21,11 @@ public class MergeJobConfig {
 	@Bean
 	@StepScope
 	public MultiResourceItemReader<String> mergeItemReader(
-			@Value("#{stepExecution}") StepExecution stepExecution,@Value("#{jobParameters[mergeInputDirLocation]}") String inputDirLocation) throws Exception {
+			@Value("#{jobExecutionContext[jobDataPath]}")  String inputDirLocation) throws Exception {
 		FlatFileItemReader<String> delegate = new FlatFileItemReader<String>();
 		delegate.setLineMapper(new PassThroughLineMapper());
 		delegate.afterPropertiesSet();
-
+        System.out.println("Job path --->" + inputDirLocation);
 		MultiResourceItemReader<String> reader = new MultiResourceItemReader<>();
 		reader.setDelegate(delegate);
 		reader.setResources(getResources(inputDirLocation));
@@ -45,7 +45,7 @@ public class MergeJobConfig {
 
 	private Resource[] getResources(String stagingDirectory) {
 		ResourceArrayPropertyEditor resourceLoader = new ResourceArrayPropertyEditor();
-		resourceLoader.setAsText("file:" + stagingDirectory + "/*");
+		resourceLoader.setAsText("file:"+stagingDirectory + "/*");
 		Resource[] resources = (Resource[]) resourceLoader.getValue();
 		return resources;
 	}

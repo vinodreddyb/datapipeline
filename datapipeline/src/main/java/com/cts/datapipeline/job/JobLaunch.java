@@ -23,6 +23,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,9 @@ public class JobLaunch {
 
 	@Autowired
 	public ApplicationContext context;
+	
+	@Value("${job.data.basepath}")
+	String jobDataBasePath;
 
 	
 	public void executeJob(JobParameters params, List<JobStep> steps) throws Exception {
@@ -57,7 +61,7 @@ public class JobLaunch {
 		job.setJobParametersIncrementer(new RunIdIncrementer());
 		job.setSteps(orderSteps);
 		job.setJobRepository((JobRepository) context.getBean("jobRepository"));
-
+        job.registerJobExecutionListener(new JobCompletionNotificationListener(jobDataBasePath));
 		jobLauncher.run(job, params);
 
 	}
@@ -107,9 +111,7 @@ public class JobLaunch {
 		return orderSteps;
 	}
 
-	public JobExecutionListener joblistener() {
-		return new JobCompletionNotificationListener();
-	}
+	
 
 	/*
 	 * public GetCurrentResourceChunkListener listener1() throws Exception {

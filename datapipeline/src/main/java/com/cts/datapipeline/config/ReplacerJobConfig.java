@@ -25,7 +25,7 @@ public class ReplacerJobConfig {
 	
 	@Bean
 	@StepScope
-	public MultiResourcePartitioner replacerPartitionReader(@Value("#{jobParameters[inputDirLocation]}") String input) {
+	public MultiResourcePartitioner replacerPartitionReader(@Value("#{jobParameters[replacerInputDirLocation]}") String input) {
 		
 		MultiResourcePartitioner partition = new MultiResourcePartitioner();
 		partition.setResources(getResources(input));
@@ -62,7 +62,7 @@ public class ReplacerJobConfig {
 	@StepScope
 	public OutputFileListener outputFileListener(@Value("#{jobParameters[outputDirLocation]}") String output) {
 		OutputFileListener listen = new OutputFileListener();
-		listen.setPath(output);
+		//listen.setPath(output);
 		return listen;
 	}
 

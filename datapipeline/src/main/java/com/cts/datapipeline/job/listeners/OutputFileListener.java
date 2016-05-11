@@ -37,8 +37,9 @@ public class OutputFileListener {
 		if (executionContext.containsKey(inputKeyName)) {
 			inputName = executionContext.getString(inputKeyName);
 		}
+		path = stepExecution.getJobExecution().getExecutionContext().getString("jobDataPath");
 		if (!executionContext.containsKey(outputKeyName)) {
-			executionContext.putString(outputKeyName, path + FilenameUtils.getBaseName(inputName)
+			executionContext.putString(outputKeyName, "file:"+ path + "/" +FilenameUtils.getBaseName(inputName)
 					+ ".csv");
 			
 			System.out.println(FilenameUtils.getName(inputName));

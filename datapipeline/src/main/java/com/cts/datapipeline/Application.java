@@ -21,17 +21,13 @@ public class Application implements CommandLineRunner {
 	public void run(String... arg0) throws Exception {
 		JobParametersBuilder params = new JobParametersBuilder();
 		params.addString("jobName", "First Job");
-		params.addString("inputDirLocation", "csv/inputs");
-		params.addString("outputDirLocation", "file:csv/outputs/");
 		params.addLong("time",System.currentTimeMillis());
 		
 		
-		params.addString("mergeInputDirLocation", "csv/outputs");
-		params.addString("mergeOutputDirLocation", "csv/merge/merge.csv");
-		
+		// Replacer step input params
 		JobStep step1 = new JobStep();
 		step1.setStepId("replacer");
-		
+		params.addString("replacerInputDirLocation", "csv/inputs");
 		params.addString(ReplacerInputParams.header_PatternBased.name(),"false");
 		params.addString(ReplacerInputParams.header_RecordBased.name(),"true");
 		params.addLong(ReplacerInputParams.headerRows.name(),1L);
@@ -39,9 +35,10 @@ public class Application implements CommandLineRunner {
 		params.addString(ReplacerInputParams.find.name(),",");
 		params.addString(ReplacerInputParams.replace.name(),"#");
 		
-		
+		//Merger step input params
 		JobStep step2 = new JobStep();
 		step2.setStepId("merger");
+		params.addString("mergeOutputDirLocation", "csv/merge/merge.csv");
 		
 		List<JobStep> steps = new ArrayList<>();
 		steps.add(step1);
