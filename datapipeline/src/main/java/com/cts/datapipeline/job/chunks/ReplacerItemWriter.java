@@ -1,4 +1,4 @@
-package com.cts.datapipeline;
+package com.cts.datapipeline.job.chunks;
 
 import java.io.BufferedWriter;
 import java.io.File;

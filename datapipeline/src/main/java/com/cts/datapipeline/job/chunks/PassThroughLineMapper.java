@@ -1,4 +1,4 @@
-package com.cts.datapipeline;
+package com.cts.datapipeline.job.chunks;
 
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.file.LineMapper;
