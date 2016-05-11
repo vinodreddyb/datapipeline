@@ -7,12 +7,15 @@ public class StepItems {
 	private String partitioner;
 	private String listener;
 	
-	public StepItems(String reader, String writer, String partitioner,String listener) {
+	private String processor;
+	
+	public StepItems(String reader,String processor, String writer, String partitioner,String listener) {
 		
 		this.reader = reader;
 		this.writer = writer;
 		this.partitioner = partitioner;
 		this.listener = listener;
+		this.setProcessor(processor);
 	}
 	
 	public String getReader() {
@@ -40,6 +43,14 @@ public class StepItems {
 
 	public void setListener(String listener) {
 		this.listener = listener;
+	}
+
+	public String getProcessor() {
+		return processor;
+	}
+
+	public void setProcessor(String processor) {
+		this.processor = processor;
 	}
 	
 	

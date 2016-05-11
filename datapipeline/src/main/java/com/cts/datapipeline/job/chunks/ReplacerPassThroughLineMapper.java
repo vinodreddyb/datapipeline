@@ -3,11 +3,11 @@ package com.cts.datapipeline.job.chunks;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.file.LineMapper;
 
-public class PassThroughLineMapper implements LineMapper<String> {
+public class ReplacerPassThroughLineMapper implements LineMapper<String> {
 	private int lineCount;
 	private StepExecution stepExecution;
 
-	public PassThroughLineMapper(StepExecution stepExecution) {
+	public ReplacerPassThroughLineMapper(StepExecution stepExecution) {
 	  this.stepExecution = stepExecution;
 	}
 	@Override
@@ -16,14 +16,11 @@ public class PassThroughLineMapper implements LineMapper<String> {
 		if (stepExecution.getExecutionContext().containsKey("cFile")) {
 			String cFile = stepExecution.getExecutionContext().getString("cFile");
 			count = (int) stepExecution.getExecutionContext().get(cFile);
-			System.out.println(cFile + " " + count);
+			
+			stepExecution.getExecutionContext().put("currentLine", lineNumber);
 		}
-		System.out.println(line + " ::: " + lineNumber);
-
-		if (lineNumber > count - 1) {
-			return null;
-		}
-		return line.replace(",", "#");
+		
+		return line;
 	}
 
 	public int getLineCount() {

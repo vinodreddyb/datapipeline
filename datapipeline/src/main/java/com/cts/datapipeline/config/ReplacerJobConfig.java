@@ -1,5 +1,7 @@
 package com.cts.datapipeline.config;
 
+import java.util.Map;
+
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourceArrayPropertyEditor;
 
+import com.cts.datapipeline.job.chunks.ReplacerAndSkipHeaderFooterLineItemProcessor;
 import com.cts.datapipeline.job.listeners.OutputFileListener;
 
 @Configuration
@@ -35,7 +38,7 @@ public class ReplacerJobConfig {
 			@Value("#{stepExecutionContext[fileName]}") Resource resource) {
 		FlatFileItemReader<String> reader = new FlatFileItemReader<>();
 		reader.setResource(resource);
-		reader.setLineMapper(new com.cts.datapipeline.job.chunks.PassThroughLineMapper(stepExecution));
+		reader.setLineMapper(new com.cts.datapipeline.job.chunks.ReplacerPassThroughLineMapper(stepExecution));
 		return reader;
 	}
 	
@@ -46,6 +49,13 @@ public class ReplacerJobConfig {
 		writer.setLineAggregator(new PassThroughLineAggregator<>());
 		writer.setResource(resource);
 		return writer;
+	}
+	
+	@Bean
+	@StepScope
+	public ReplacerAndSkipHeaderFooterLineItemProcessor replacerItemProcessor(@Value("#{stepExecution}") StepExecution stepExecution,
+			@Value("#{jobParameters}") Map<String,Object> parameters) {
+		return new ReplacerAndSkipHeaderFooterLineItemProcessor(stepExecution, parameters);
 	}
 	
 	@Bean

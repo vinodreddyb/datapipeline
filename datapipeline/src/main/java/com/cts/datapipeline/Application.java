@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.cts.datapipeline.input.JobStep;
+import com.cts.datapipeline.input.constants.ReplacerInputParams;
 import com.cts.datapipeline.job.JobLaunch;
 
 @SpringBootApplication
@@ -30,6 +31,14 @@ public class Application implements CommandLineRunner {
 		
 		JobStep step1 = new JobStep();
 		step1.setStepId("replacer");
+		
+		params.addString(ReplacerInputParams.header_PatternBased.name(),"false");
+		params.addString(ReplacerInputParams.header_RecordBased.name(),"true");
+		params.addLong(ReplacerInputParams.headerRows.name(),1L);
+		params.addLong(ReplacerInputParams.footerRows.name(),1L);
+		params.addString(ReplacerInputParams.find.name(),",");
+		params.addString(ReplacerInputParams.replace.name(),"#");
+		
 		
 		JobStep step2 = new JobStep();
 		step2.setStepId("merger");

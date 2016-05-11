@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import com.cts.datapipeline.input.JobStep;
 import com.cts.datapipeline.input.StepItems;
 import com.cts.datapipeline.input.constants.StepClasses;
+import com.cts.datapipeline.job.chunks.ReplacerAndSkipHeaderFooterLineItemProcessor;
 import com.cts.datapipeline.job.listeners.JobCompletionNotificationListener;
 import com.cts.datapipeline.job.listeners.OutputFileListener;
 
@@ -83,9 +84,10 @@ public class JobLaunch {
 						.getBean(items.getPartitioner());
 				FlatFileItemReader<String> itemReader = (FlatFileItemReader<String>) context.getBean(items.getReader());
 				FlatFileItemWriter<String> itemWriter = (FlatFileItemWriter<String>) context.getBean(items.getWriter());
+				ReplacerAndSkipHeaderFooterLineItemProcessor processor = (ReplacerAndSkipHeaderFooterLineItemProcessor) context.getBean(items.getProcessor());
 				OutputFileListener listener = (OutputFileListener) context.getBean(items.getListener());
 
-				Step replacerStep = stepBuilderFactory.get("replacerStep").<String, String> chunk(1).reader(itemReader)
+				Step replacerStep = stepBuilderFactory.get("replacerStep").<String, String> chunk(1).reader(itemReader).processor(processor)
 						.writer(itemWriter).listener(listener).build();
 				Step replacerPartitionStep = stepBuilderFactory.get("PartitionStep").partitioner(replacerStep)
 						.partitioner("replacerStep", mergeFilePartitioner).taskExecutor(new SyncTaskExecutor()).build();

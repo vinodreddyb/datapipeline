@@ -4,9 +4,9 @@ import com.cts.datapipeline.input.StepItems;
 
 public enum StepClasses {
 
-	replacer(new StepItems("replacerItemReader","replacerItemWriter",
+	replacer(new StepItems("replacerItemReader","replacerItemProcessor","replacerItemWriter",
 			"replacerPartitionReader","outputFileListener")),
-	merger(new StepItems("mergeItemReader","mergerWriter",
+	merger(new StepItems("mergeItemReader",null,"mergerWriter",
 			null,null));
 	
 	private StepItems items;
